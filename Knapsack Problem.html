@@ -1,0 +1,102 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+</head>
+
+<title>Knapsack Problem</title>
+<body>
+  <script>
+  function knapsack(items, capacity){
+    // Ta implementacja wykorzystuje dynamiczne programowanie.
+    // Zmienna "memo" to siatka (dwuwymiarowa tablica) służąca do przechowywania optymalnego rozwiązania podań,
+    // który będzie używany później, gdy kod zostanie wykonany.
+    // To jest memoizacja w programowaniu.
+    // Komórka zapisze najlepsze rozwiązania dla różnych funkcji i elementów do wyboru.
+    var memo = [];
+
+    // Wypełnianie sieci decyzji podsystemu.
+    for (var i = 0; i < items.length; i++) {
+      // Wartość "cap" oznacza pojemność podań. W tym przykładzie "cap" mieści się w zakresie od 1 do 6.
+      var row = [];
+      for (var cap = 1; cap <= capacity; cap++) {
+        row.push(getSolution(i,cap));
+      }
+      memo.push(row);
+    }
+
+    // Komórka w prawym dolnym rogu siatki zawiera ostateczne rozwiązanie dla całego zadania.
+    return(getLast());
+
+    function getLast(){
+      var lastRow = memo[memo.length - 1];
+      return lastRow[lastRow.length - 1];
+    }
+
+    function getSolution(row,cap){
+      const NO_SOLUTION = {maxValue:0, subset:[]};
+      // Numer kolumny zaczyna się od zera.
+      var col = cap - 1;
+      var lastItem = items[row];
+      // Pozostała zdolność do rozwiązania problemu.
+      var remaining = cap - lastItem.w;
+
+      // Odwołujemy się do ostatniej decyzji dotyczącej tej zdolności,
+      // która znajduje się w komórce poprzedniego wiersza z tą samą kolumną
+      var lastSolution = row > 0 ? memo[row - 1][col] || NO_SOLUTION : NO_SOLUTION;
+      // Zobacz ostatnie rozwiązanie dla pozostałych pojemności,
+      // która znajduje się w komórce poprzedniego rzędu z odpowiednią kolumną
+      var lastSubSolution = row > 0 ? memo[row - 1][remaining - 1] || NO_SOLUTION : NO_SOLUTION;
+
+      // Jeśli któryś z elementów waży więcej niż "cap", zwracamy ostatnie rozwiązanie
+      if(remaining < 0){
+        return lastSolution;
+      }
+
+      // Porównaj bieżące najlepsze rozwiązanie podsekcji o określonej pojemności
+      // do nowej wersji testowej z dodanym lastItem (nowy element)
+      var lastValue = lastSolution.maxValue;
+      var lastSubValue = lastSubSolution.maxValue;
+
+      var newValue = lastSubValue + lastItem.v;
+      if(newValue >= lastValue){
+        // Skopiuj podzbiór ostatniego rozwiązania podkategorie
+        var _lastSubSet = lastSubSolution.subset.slice();
+        _lastSubSet.push(lastItem);
+        return {maxValue: newValue, subset:_lastSubSet};
+      }else{
+        return lastSolution;
+      }
+    }
+  }
+
+  // Dane wejściowe
+  var items = [
+    {w:70,v:135},
+    {w:73,v:139},
+    {w:77,v:149},
+    {w:80,v:150},
+    {w:82,v:156},
+    {w:87,v:163},
+    {w:90,v:173},
+    {w:94,v:184},
+    {w:98,v:192},
+    {w:106,v:201},
+    {w:110,v:210},
+    {w:113,v:214},
+    {w:115,v:221},
+    {w:118,v:229},
+    {w:120,v:240},
+  ];
+
+  var capacity = 750;
+
+  // Wyjście rozwiązania
+  console.log(knapsack(items, capacity));
+  // No to wszystko ;)
+  document.write("Look console: ", "CTRL+SHIFT+I");
+
+  </script>
+</body>
+
+</html>
